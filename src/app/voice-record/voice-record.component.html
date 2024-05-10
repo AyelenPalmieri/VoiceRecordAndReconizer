@@ -1,0 +1,53 @@
+
+<div class="audio-record-content">
+  <div class="audio-record" *ngIf="!isRecording && !blobUrl">
+    <p class="audio-placeholder" style="color: green;">
+      Click para Comenzar a Grabar...
+    </p>
+    <div class="record-icons">
+      <img
+        src="../../assets/icon/icon-mic.png"
+        (click)="startRecording()"
+        class="mic-icon"
+      />
+      <img
+        src="../../assets/icon/icon-delete.png"
+        (click)="deleteRecording()"
+        class="delete-icon"
+      />
+      <img
+        src="../../assets/icon/icon-download.png"
+        (click)="downloadRecording()"
+        class="download-icon"
+      />
+    </div>
+  </div>
+  <div class="audio-record" *ngIf="isRecording && !blobUrl">
+    <p class="audio-placeholder" style="color: red;">
+      Click para Detener Grabacion...
+    </p>
+    <div class="record-icons">
+      <img
+        src="../../assets/icon/icon-mic.png"
+        (click)="stopRecording()"
+        class="mic-icon"
+      />
+      <img
+        src="../../assets/icon/icon-delete.png"
+        (click)="deleteRecording()"
+        class="delete-icon"
+      />
+    </div>
+  </div>
+
+  <div class="col-12 mt-2" *ngIf="isRecording && !blobUrl">
+    {{startTime}}
+  </div>
+
+  <div class="col-12 mt-2" *ngIf="!isRecording && blobUrl">
+    <audio class="audio-file" controls >
+      <source [src]="blobUrl" type="audio/wav"/>
+    </audio>
+  </div>
+
+</div>

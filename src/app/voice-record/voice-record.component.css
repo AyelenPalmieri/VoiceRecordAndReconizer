@@ -1,0 +1,76 @@
+.audio-record-content {
+  max-width: 500px;
+  margin: 10rem auto;
+}
+
+.audio-record {
+  height: 60px;
+  background: rgb(204, 204, 204);
+  border-radius: 18px;
+  margin-top: 20px;
+  display: flex;
+}
+
+.audio-placeholder {
+  margin: auto 0px auto 20px;
+  width: 100%;
+}
+
+.mic-icon {
+  background: rgb(110, 110, 255);
+  border-radius: 25px;
+  padding: 4px;
+  width: 2rem;
+  height: 2rem;
+  margin: auto;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.audio-file {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.record-icons {
+  display: flex;
+  align-items: center;
+}
+
+.delete-icon {
+  background: rgb(230, 9, 9);
+  border-radius: 25px;
+  padding: 4px;
+  width: 2rem;
+  height: 2rem;
+  margin: auto;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.download-icon {
+  background: rgb(9, 112, 230);
+  border-radius: 25px;
+  padding: 4px;
+  width: 2rem;
+  height: 2rem;
+  margin: auto;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+/* @media (min-width: 576px) {
+  .mic-icon,
+  .delete-icon,
+
+  .delete-icon {
+    background: rgb(110, 110, 255);
+    border-radius: 25px;
+    padding: 4px;
+    width: 2rem;
+    height: 2rem;
+    margin: auto;
+    margin-left: 8px;
+    margin-right: 8px;
+  }
+} */
