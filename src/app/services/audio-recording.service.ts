@@ -20,7 +20,18 @@ export class AudioRecordingService {
   private recordingTime = new Subject<string>();
   private recordedFailed = new Subject<string>();
 
+  private recordedCompleted = new Subject<boolean>();
+
   constructor() { }
+
+
+  notifyRecordingCompleted() {
+    this.recordedCompleted.next(true);
+  }
+
+  getRecordedCompleted(): Observable<boolean> {
+    return this.recordedCompleted.asObservable();
+  }
 
   startRecording(){
     if(!this.recorder){
@@ -63,7 +74,9 @@ export class AudioRecordingService {
     if (this.recorder) {
       this.recorder.stop((blob: Blob) => {
         const title = encodeURIComponent('audio_' + new Date().getTime() + '.wav')
+        console.log(title)
         this.recordedBlob.next({blob, title});
+        this.notifyRecordingCompleted();
         this.stopMedia();
       }, () => {
         this.stopMedia();
@@ -82,6 +95,13 @@ export class AudioRecordingService {
         this.stream.getAudioTracks().forEach(track => track.stop());
         this.stream = null;
       }
+    }
+  }
+
+  deleteRecording(){
+    if (!this.recorder){
+      console.log("entro")
+      this.recordingTime.next('0:00');
     }
   }
 
