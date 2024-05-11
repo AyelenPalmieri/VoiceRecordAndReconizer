@@ -8,16 +8,6 @@
         </p>
       </mat-card-content>
       <mat-card-actions style="text-align: center;">
-        <!-- <div class="record-icons"> -->
-          <!-- <button (click)="startRecording()" [disabled]="isActionInProgress || isRecording" class="button-icon mic-button">
-            <img src="../../assets/icon/icon-mic.png" class="icon" alt="Mic Icon">
-            <span class="icon icon-text">Grabar</span>
-          </button>
-          <button (click)="stopRecording()" [disabled]="!isActionInProgress || isRecording" class="button-icon stop-button">
-            <img src="../../assets/icon/icon-mic-cancel.png" class="icon" alt="Mic Icon">
-            <span class="icon icon-text">Detener</span>
-          </button> -->
-
           <ng-template [ngIf]="!(isActionInProgress || isRecording)">
             <button (click)="startRecording()" [disabled]="isActionInProgress || isRecording" class="button-icon mic-button">
               <img src="../../assets/icon/icon-mic.png" class="icon" alt="Mic Icon">
@@ -40,13 +30,10 @@
             <img src="../../assets/icon/icon-download.png" class="icon" alt="Mic Icon">
             <span class="icon icon-text">Descargar</span>
           </button>
-        <!-- </div> -->
 
         <div class="col-12 mt-2">
           {{startTime}}
         </div>
-        <!-- <button mat-button>LIKE</button>
-        <button mat-button>SHARE</button> -->
       </mat-card-actions>
   </mat-card>
 
