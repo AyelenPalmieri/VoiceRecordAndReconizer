@@ -4,7 +4,6 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { takeUntil } from 'rxjs/operators';
 import { Observable, Subject, interval } from 'rxjs';
 import { MatCardModule} from '@angular/material/card';
-// import * as RecordRTC from 'recordrtc';
 
 @Component({
   selector: 'app-voice-record',
@@ -39,7 +38,6 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
 
   private getRecordedCompleted(){
     this.audioRecordingServices.getRecordedCompleted().subscribe(() => {
-      // this.stopRecording();
     });
   }
 
