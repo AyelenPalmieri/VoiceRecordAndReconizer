@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import * as RecordRTC from 'recordrtc';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
+
 
 export interface RecordedBlob{
   blob: Blob;
@@ -22,7 +25,7 @@ export class AudioRecordingService {
 
   private recordedCompleted = new Subject<boolean>();
 
-  constructor() { }
+  constructor(private httpClient: HttpClient) { }
 
 
   notifyRecordingCompleted() {
@@ -103,6 +106,20 @@ export class AudioRecordingService {
       console.log("entro")
       this.recordingTime.next('0:00');
     }
+  }
+
+  sendAudioToServer(recordedBlob: any, title: string): Observable<any> {
+    const formData = new FormData();
+    // formData.append('blob', recordedBlob.blob, title);
+    // formData.append('title', title);
+    const data = {
+      blob: recordedBlob,
+      title: title
+    };
+
+    console.log(recordedBlob.blob);
+
+    return this.httpClient.post<any>(environment.apiUrlBack, data);
   }
 
   abortRecording(){

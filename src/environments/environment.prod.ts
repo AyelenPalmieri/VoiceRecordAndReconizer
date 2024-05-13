@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  apiUrlBack: 'http://localhost:4000/audioConsulta'
 };

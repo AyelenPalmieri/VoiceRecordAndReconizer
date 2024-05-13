@@ -9,7 +9,7 @@
       </mat-card-content>
       <mat-card-actions style="text-align: center;">
           <ng-template [ngIf]="!(isActionInProgress || isRecording)">
-            <button (click)="startRecording()" [disabled]="isActionInProgress || isRecording" class="button-icon mic-button">
+            <button (click)="startRecording()" [disabled]="isActionInProgress || isRecording || audioSentSuccessfully" class="button-icon mic-button">
               <img src="../../assets/icon/icon-mic.png" class="icon" alt="Mic Icon">
               <span class="icon icon-text">Grabar</span>
             </button>
@@ -22,13 +22,17 @@
             </button>
           </ng-template>
 
-          <button (click)="deleteRecording()" [disabled]="isActionInProgress || isRecording || !blobUrl" class="button-icon delete-button">
+          <button (click)="deleteRecording()" [disabled]="isActionInProgress || isRecording || !blobUrl || audioSentSuccessfully" class="button-icon delete-button">
             <img src="../../assets/icon/icon-delete.png" class="icon" alt="Mic Icon">
             <span class="icon icon-text">Eliminar</span>
           </button>
           <button (click)="downloadRecording()" [disabled]="isActionInProgress || isRecording || !blobUrl" class="button-icon download-button">
             <img src="../../assets/icon/icon-download.png" class="icon" alt="Mic Icon">
             <span class="icon icon-text">Descargar</span>
+          </button>
+          <button (click)="sendAudioToServer()" [disabled]="isActionInProgress || isRecording || !blobUrl" class="button-icon download-button">
+            <img src="../../assets/icon/icon-download.png" class="icon" alt="Mic Icon">
+            <span class="icon icon-text">Transcribir</span>
           </button>
 
         <div class="col-12 mt-2">

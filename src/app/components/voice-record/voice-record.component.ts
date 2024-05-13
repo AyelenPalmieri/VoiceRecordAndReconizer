@@ -1,9 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AudioRecordingService, RecordedBlob } from '../services/audio-recording.service';
+import { AudioRecordingService, RecordedBlob } from '../../services/audio-recording.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { takeUntil } from 'rxjs/operators';
 import { Observable, Subject, interval } from 'rxjs';
 import { MatCardModule} from '@angular/material/card';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-voice-record',
@@ -17,6 +18,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
   isActionInProgress = false;
   startTime = '0:00';
   isBlinking = false;
+  audioSentSuccessfully = false;
   private recordedBlob!: RecordedBlob;
   private ngUnsubscribe = new Subject<void>();
   private buttonStateSubject = new Subject<boolean>();
@@ -24,7 +26,8 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly audioRecordingServices: AudioRecordingService,
-    private readonly sanitizer: DomSanitizer
+    private readonly sanitizer: DomSanitizer,
+    private snackBar: MatSnackBar
   ){
       this.getRecordedBlob();
       this.getRecordingTime();
@@ -85,6 +88,29 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
     }
   }
 
+  sendAudioToServer(){
+    if (!this.isRecording && !this.isActionInProgress && this.recordedBlob) {
+      this.audioRecordingServices.sendAudioToServer(this.recordedBlob, this.recordedBlob.title)
+        .subscribe(
+          response => {
+            console.log('Archivo de audio enviado con exito al servidor');
+            this.audioSentSuccessfully = true;
+            this.snackBar.open('¡El archivo de audio se ha enviado con exito al servidor!', 'Cerrar', {
+               duration: 3000,
+            });
+            this.audioSentSuccessfully = false;
+          },
+          error => {
+            console.error('Error al enviar archivo de audio al servidor:', error);
+            // Aquí puedes manejar errores, mostrar mensajes al usuario, etc.
+          }
+        );
+    } else {
+      console.error('No se grabó ningún audio o ya hay una grabación en curso.');
+      // Aquí puedes mostrar un mensaje al usuario indicando que no hay grabación o que ya hay una grabación en curso.
+    }
+  }
+
   startBlinking() {
     this.isBlinking = true;
     interval(1000)
@@ -110,6 +136,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
     if (!this.isRecording && !this.isActionInProgress){
       const downloadLink = document.createElement('a');
       downloadLink.href = URL.createObjectURL(this.recordedBlob.blob);
+      console.log(this.recordedBlob)
       downloadLink.download = this.recordedBlob.title;
       console.log('download recorded')
       downloadLink.click();
