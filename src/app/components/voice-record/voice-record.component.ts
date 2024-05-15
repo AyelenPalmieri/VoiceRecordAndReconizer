@@ -90,7 +90,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
 
   sendAudioToServer(){
     if (!this.isRecording && !this.isActionInProgress && this.recordedBlob) {
-      this.audioRecordingServices.sendAudioToServer(this.recordedBlob, this.recordedBlob.title)
+      this.audioRecordingServices.sendAudioToServer(this.recordedBlob.blob, this.recordedBlob.title)
         .subscribe(
           response => {
             console.log('Archivo de audio enviado con exito al servidor');

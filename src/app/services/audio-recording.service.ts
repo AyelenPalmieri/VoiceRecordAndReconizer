@@ -79,6 +79,8 @@ export class AudioRecordingService {
         const title = encodeURIComponent('audio_' + new Date().getTime() + '.wav')
         console.log(title)
         this.recordedBlob.next({blob, title});
+        // console.log( this.recordedBlob.next({blob, title}))
+        // console.log(blob)
         this.notifyRecordingCompleted();
         this.stopMedia();
       }, () => {
@@ -95,6 +97,10 @@ export class AudioRecordingService {
       this.startTime = 0;
 
       if (this.stream) {
+        //objeto MediaStreamTrack
+        //console.log(this.recordedBlob.getBlob())
+        // console.log(this.stream.getAudioTracks())
+        // console.log(typeof(this.stream))
         this.stream.getAudioTracks().forEach(track => track.stop());
         this.stream = null;
       }
@@ -108,18 +114,23 @@ export class AudioRecordingService {
     }
   }
 
-  sendAudioToServer(recordedBlob: any, title: string): Observable<any> {
+  sendAudioToServer(blob: Blob, title: string): Observable<any> {
     const formData = new FormData();
-    // formData.append('blob', recordedBlob.blob, title);
-    // formData.append('title', title);
-    const data = {
-      blob: recordedBlob,
-      title: title
-    };
+    formData.append('archivo', blob);
+    formData.append('title', title)
+    console.log(formData)
+    // const data = {
+    //   blob: recordedBlob,
+    //   title: title,
+    //   //aca no llega el stream que se genera cuando se ejecuta stopMedia
+    //   stream: this.stream?.getAudioTracks()
+    // }
 
-    console.log(recordedBlob.blob);
+    //stream esta nulo
+    // console.log(data.stream)
+    // console.log(recordedBlob);
 
-    return this.httpClient.post<any>(environment.apiUrlBack, data);
+    return this.httpClient.post<any>(environment.apiUrlBack, formData);
   }
 
   abortRecording(){
