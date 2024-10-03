@@ -130,7 +130,12 @@ export class AudioRecordingService {
     // console.log(data.stream)
     // console.log(recordedBlob);
 
-    return this.httpClient.post<any>(environment.apiUrlBack + 'create', formData);
+    return this.httpClient.post<any>(environment.apiUrlBack + 'upload', formData);
+  }
+
+  transcribeAudio(fileId: string): Observable<any> {
+    const body = { file_id: fileId };
+    return this.httpClient.post<any>(environment.apiUrlBack + 'transcribe', body);
   }
 
   abortRecording(){

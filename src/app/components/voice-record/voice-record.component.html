@@ -30,9 +30,13 @@
             <img src="../../assets/icon/icon-download.png" class="icon" alt="Mic Icon">
             <span class="icon icon-text">Descargar</span>
           </button>
-          <button (click)="sendAudioToServer()" [disabled]="isActionInProgress || isRecording || !blobUrl" class="button-icon download-button">
-            <img src="../../assets/icon/icon-download.png" class="icon" alt="Mic Icon">
+          <button (click)="transcribeAudio()" [disabled]="isActionInProgress || isRecording || !blobUrl" class="button-icon download-button">
+            <img src="../../assets/icon/icon-transcribe.png" class="icon" alt="Mic Icon">
             <span class="icon icon-text">Transcribir</span>
+          </button>
+          <button (click)="sendAudioToServer()" [disabled]="isActionInProgress || isRecording || !blobUrl" class="button-icon save-button">
+            <img src="../../assets/icon/icon-save-db.png" class="icon" alt="Mic Icon">
+            <span class="icon icon-text">Guardar</span>
           </button>
 
         <div class="col-12 mt-2">

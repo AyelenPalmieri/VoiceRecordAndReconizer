@@ -23,6 +23,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
   private ngUnsubscribe = new Subject<void>();
   private buttonStateSubject = new Subject<boolean>();
   buttonState$: Observable<boolean> = this.buttonStateSubject.asObservable();
+  fileId: any;
 
   constructor(
     private readonly audioRecordingServices: AudioRecordingService,
@@ -95,20 +96,40 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
           response => {
             console.log('Archivo de audio enviado con exito al servidor');
             console.log(this.recordedBlob)
-            this.audioSentSuccessfully = true;
+
+            // Guardar el file_id que se recibe de la respuesta del backend
+            this.fileId = response.file_id;
+
             this.snackBar.open('¡El archivo de audio se ha enviado con exito al servidor!', 'Cerrar', {
                duration: 3000,
             });
+
+            this.audioSentSuccessfully = true;
             this.audioSentSuccessfully = false;
           },
           error => {
             console.error('Error al enviar archivo de audio al servidor:', error);
-            // Aquí puedes manejar errores, mostrar mensajes al usuario, etc.
           }
         );
     } else {
       console.error('No se grabó ningún audio o ya hay una grabación en curso.');
-      // Aquí puedes mostrar un mensaje al usuario indicando que no hay grabación o que ya hay una grabación en curso.
+    }
+  }
+
+  transcribeAudio() {
+    if (this.fileId) {
+      this.audioRecordingServices.transcribeAudio(this.fileId).subscribe(
+        response => {
+          console.log('Transcripción completada:', response.formatted_report);
+          this.snackBar.open('Transcripción completada con éxito!', 'Cerrar', { duration: 3000 });
+          // Manejar la transcripcion como mostrarla en CKEditor (NO IMPLEMENTADO)
+        },
+        error => {
+          console.error('Error al transcribir el archivo:', error);
+        }
+      );
+    } else {
+      console.error('No se ha encontrado el file_id.');
     }
   }
 
