@@ -118,7 +118,7 @@ export class AudioRecordingService {
     const formData = new FormData();
     formData.append('archivo', blob);
     formData.append('title', title)
-    console.log(formData)
+    //console.log(formData)
     // const data = {
     //   blob: recordedBlob,
     //   title: title,
@@ -130,7 +130,7 @@ export class AudioRecordingService {
     // console.log(data.stream)
     // console.log(recordedBlob);
 
-    return this.httpClient.post<any>(environment.apiUrlBack, formData);
+    return this.httpClient.post<any>(environment.apiUrlBack + 'create', formData);
   }
 
   abortRecording(){

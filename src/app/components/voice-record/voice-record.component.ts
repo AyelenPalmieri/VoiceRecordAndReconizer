@@ -94,6 +94,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
         .subscribe(
           response => {
             console.log('Archivo de audio enviado con exito al servidor');
+            console.log(this.recordedBlob)
             this.audioSentSuccessfully = true;
             this.snackBar.open('¡El archivo de audio se ha enviado con exito al servidor!', 'Cerrar', {
                duration: 3000,
