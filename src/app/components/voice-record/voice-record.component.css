@@ -18,10 +18,40 @@
   background-color: rgb(255, 255, 255);
 }
 
+.card-content {
+  padding: 20px; /* Espaciado interno de la tarjeta */
+  text-align: center; /* Centrar el texto */
+  background-color: #f9f9f9; /* Fondo más claro */
+  border-radius: 8px; /* Bordes redondeados */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+.card-title {
+  font-size: 1.5rem; /* Tamaño de fuente para el título */
+  font-weight: bold; /* Negrita */
+  color: #3f51b5; /* Color azul del Material Design */
+  margin-bottom: 10px; /* Espacio debajo del título */
+}
+
+.card-description {
+  font-size: 1rem; /* Tamaño de fuente para la descripción */
+  color: #666; /* Color gris para el texto */
+  line-height: 1.5; /* Mayor interlineado para mejor legibilidad */
+}
+
+.mat-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  row-gap: 50px;
+  padding-bottom: 50px !important;
+}
+
 .audio-record-content-2 {
   border-radius: 9px;
   margin-top: 20px;
-  justify-content: space-around;
+  margin-bottom: 20px;
   width: 50%;
   height: 100px;
   background-color: rgb(255, 255, 255);
@@ -32,17 +62,23 @@
   width: 100%;
 }
 
+.button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80px;
+  text-align: center;
+}
 
 .button-icon {
   border: none;
   background-color: transparent;
   cursor: pointer;
-  padding: 10px;
-  border-radius: 5px;
-  transition: background-color 0.3s;
-  margin: 10px;
-  height: 44px;
-  width: 120px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  transition: background-color 0.3s, border-color 0.3s, opacity 0.3s;
+  height: 60px;
+  width: 60px;
 }
 
 .button-icon:disabled {
@@ -56,23 +92,22 @@
 }
 
 .button-icon:hover {
-  opacity: 0.7;
-}
-
-.icon {
-  padding: 4px;
-  width: 2rem;
-  height: 2rem;
+  background-color: rgba(13, 154, 240, 0.5);
+  border-color: #00aaff;
+  /* opacity: 0.3; */
 }
 
 .icon-text{
+  display: grid;
+  justify-content: center;
   font-size: 14px;
   color: #333;
 }
 
 
 .mic-button {
-  background: rgb(93, 207, 36);
+  /* background: rgb(93, 207, 36); */
+  background: #0d9af0c7
 }
 
 .download-button {
@@ -80,15 +115,15 @@
 }
 
 .save-button {
-  background: rgb(9, 112, 230);
+  background: #0d9af0c7;
 }
 
 .stop-button {
-  background: rgb(254, 86, 39);
+  background: #0d9af0c7
 }
 
 .delete-button {
-  background: rgb(230, 9, 9);
+  background: #0d9af0c7
 }
 
 .audio-file {
@@ -99,20 +134,66 @@
 
 .col-12 {
   text-align: center;
-  padding: 3px;
 }
 
+.icon-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px; /* Altura mínima para evitar que el temporizador cambie de posición */
+  justify-content: space-evenly;
+}
 
-.recording-text {
+.recording-icon {
+  position: relative;
+  width: 40px; /* Tamaño del círculo exterior */
+  height: 40px;
+  background-color: #ff4c4c; /* Color rojo del círculo exterior */
+  border-radius: 50%; /* Hacerlo circular */
+  display: inline-block;
+  margin-bottom: 4px; /* Espacio entre el icono y el temporizador */
+}
+
+.static-timer {
   font-size: 14px;
-  color: #333;
-  margin-left: 5px;
-  padding: 2px 5px;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.recording-icon::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 30px; /* Tamaño del círculo interior */
+  height: 30px;
+  background-color: #d32f2f; /* Color rojo más oscuro para el círculo interior */
+  border-radius: 50%; /* Hacerlo circular */
+  transform: translate(-50%, -50%); /* Centrar en el círculo exterior */
+}
+
+/* .banner-img {
+  height: 100%;
+  width: 100%;
+} */
+
+.banner-container {
+  width: 100%; /* Ocupa todo el ancho del contenedor padre */
+  height: 350px; /* Altura fija para el banner */
+  overflow: hidden; /* Esconde partes de la imagen que se salgan del contenedor */
+  position: relative; /* Para posicionar otros elementos si es necesario */
 }
 
 .banner-img {
   height: 100%;
   width: 100%;
+  object-fit: cover; /* Ajusta la imagen para cubrir el área sin distorsión */
+  object-position: center; /* Centra la imagen en el contenedor */
+  transition: transform 0.5s ease; /* Agrega una transición suave al hacer hover */
 }
 
+.banner-container:hover .banner-img {
+  transform: scale(1.1); /* Aumenta ligeramente el tamaño al pasar el mouse */
+}
 

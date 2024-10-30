@@ -1,61 +1,145 @@
 
 <div class="audio-record-card">
   <mat-card class="audio-record-content card-shadow">
-    <img src="../../assets/banner.jpg" class="banner-img" alt="Banner Imagen">
-      <mat-card-content>
-        <p>
-          Sistema para Grabar y Transcribir Consultas Medicas
+    <div class="banner-container">
+      <img src="../../assets/banner.jpg" class="banner-img" alt="Banner Imagen">
+    </div>
+      <mat-card-content class="card-content">
+        <h2 class="card-title">Sistema para Grabar y Transcribir Consultas Médicas</h2>
+        <p class="card-description">
+          Esta aplicación permite grabar y transcribir consultas médicas de manera eficiente y segura.
         </p>
       </mat-card-content>
-      <mat-card-actions style="text-align: center;">
+      <mat-card-actions>
           <ng-template [ngIf]="!(isActionInProgress || isRecording)">
-            <button (click)="startRecording()" [disabled]="isActionInProgress || isRecording || audioSentSuccessfully" class="button-icon mic-button">
-              <img src="../../assets/icon/icon-mic.png" class="icon" alt="Mic Icon">
-              <span class="icon icon-text">Grabar</span>
-            </button>
+            <div class="button-container">
+              <button (click)="startRecording()" [disabled]="isActionInProgress || isRecording || audioSentSuccessfully" class="button-icon mic-button">
+                <!-- <img src="../../assets/icon/icon-mic.png" class="icon" alt="Mic Icon"> -->
+                <lord-icon
+                  src="https://cdn.lordicon.com/ceogkocw.json"
+                  trigger="hover"
+                  style="width: 100%; height: 100%;">
+                </lord-icon>
+                <span class="icon icon-text">Grabar</span>
+              </button>
+            </div>
           </ng-template>
 
           <ng-template [ngIf]="!(!isActionInProgress || isRecording)">
-            <button (click)="stopRecording()" [disabled]="!isActionInProgress || isRecording" class="button-icon stop-button">
-              <img src="../../assets/icon/icon-mic-cancel.png" class="icon" alt="Mic Icon">
-              <span class="icon icon-text">Detener</span>
-            </button>
+            <div class="button-container">
+              <button (click)="stopRecording()" [disabled]="!isActionInProgress || isRecording" class="button-icon stop-button">
+                <!-- <img src="../../assets/icon/icon-mic-cancel.png" class="icon" alt="Mic Icon"> -->
+                <lord-icon
+                  src="https://cdn.lordicon.com/ceogkocw.json"
+                  trigger="hover"
+                  state="hover-cross"
+                  style="width: 100%; height: 100%;">
+                </lord-icon>
+                <span class="icon icon-text">Detener</span>
+              </button>
+            </div>
           </ng-template>
 
-          <button (click)="deleteRecording()" [disabled]="isActionInProgress || isRecording || !blobUrl || audioSentSuccessfully" class="button-icon delete-button">
-            <img src="../../assets/icon/icon-delete.png" class="icon" alt="Mic Icon">
-            <span class="icon icon-text">Eliminar</span>
-          </button>
-          <button (click)="downloadRecording()" [disabled]="isActionInProgress || isRecording || !blobUrl" class="button-icon download-button">
-            <img src="../../assets/icon/icon-download.png" class="icon" alt="Mic Icon">
-            <span class="icon icon-text">Descargar</span>
-          </button>
-          <button (click)="transcribeAudio()" [disabled]="isActionInProgress || isRecording || !blobUrl" class="button-icon download-button">
-            <img src="../../assets/icon/icon-transcribe.png" class="icon" alt="Mic Icon">
-            <span class="icon icon-text">Transcribir</span>
-          </button>
-          <button (click)="sendAudioToServer()" [disabled]="isActionInProgress || isRecording || !blobUrl" class="button-icon save-button">
-            <img src="../../assets/icon/icon-save-db.png" class="icon" alt="Mic Icon">
-            <span class="icon icon-text">Guardar</span>
-          </button>
+          <div class="button-container">
+            <button (click)="deleteRecording()" [disabled]="isActionInProgress || isRecording || !blobUrl || audioSentSuccessfully" class="button-icon delete-button">
+              <!-- <img src="../../assets/icon/icon-delete.png" class="icon" alt="Mic Icon"> -->
+              <lord-icon
+                src="https://cdn.lordicon.com/hjbrplwk.json"
+                trigger="hover"
+                colors="primary:#646e78,secondary:#545454,tertiary:#ebe6ef,quaternary:#3a3347"
+                style="width:100%;height:100%">
+              </lord-icon>
+              <span class="icon icon-text">Eliminar</span>
+            </button>
+          </div>
 
-        <div class="col-12 mt-2">
-          {{startTime}}
-        </div>
+          <div class="button-container">
+            <button (click)="downloadRecording()" [disabled]="isActionInProgress || isRecording || !blobUrl" class="button-icon download-button">
+              <!-- <img src="../../assets/icon/icon-download.png" class="icon" alt="Mic Icon"> -->
+              <lord-icon
+                src="https://cdn.lordicon.com/tinbomws.json"
+                trigger="hover"
+                colors="primary:#848484"
+                style="width:100%;height:100%">
+              </lord-icon>
+              <span class="icon icon-text">Descargar Audio</span>
+            </button>
+          </div>
+
+          <div class="button-container">
+            <button (click)="transcribeAudio()" [disabled]="isActionInProgress || isRecording || !blobUrl" class="button-icon download-button">
+              <!-- <img src="../../assets/icon/icon-transcribe.png" class="icon" alt="Mic Icon"> -->
+              <lord-icon
+                src="https://cdn.lordicon.com/yqiuuheo.json"
+                trigger="hover"
+                colors="primary:#545454,secondary:#ebe6ef"
+                style="width:100%;height:100%">
+              </lord-icon>
+              <span class="icon icon-text">Transcribir Audio</span>
+            </button>
+          </div>
+
+          <div class="button-container">
+            <button (click)="sendAudioToServer()" [disabled]="isActionInProgress || isRecording || !blobUrl" class="button-icon save-button">
+              <!-- <img src="../../assets/icon/icon-save-db.png" class="icon" alt="Mic Icon"> -->
+              <lord-icon
+                src="https://cdn.lordicon.com/cwptyzxc.json"
+                trigger="hover"
+                colors="primary:#545454,secondary:#ebe6ef"
+                style="width:100%; height: 100%;">
+              </lord-icon>
+              <span class="icon icon-text">Guardar Audio</span>
+            </button>
+          </div>
+
+          <div class="button-container">
+            <button (click)="sendAudioToServer()" [disabled]="isActionInProgress || isRecording || !blobUrl" class="button-icon save-button">
+              <!-- <img src="../../assets/icon/icon-save-db.png" class="icon" alt="Mic Icon"> -->
+              <lord-icon
+                src="https://cdn.lordicon.com/fzgrewpn.json"
+                trigger="hover"
+                colors="primary:#545454,secondary:#3a3347"
+                style="width:100%;height:100%">
+              </lord-icon>
+              <span class="icon icon-text">Guardar Transcripcion</span>
+            </button>
+          </div>
+
+          <div class="button-container">
+            <button (click)="sendAudioToServer()" [disabled]="isActionInProgress || isRecording || !blobUrl" class="button-icon save-button">
+              <!-- <img src="../../assets/icon/icon-save-db.png" class="icon" alt="Mic Icon"> -->
+              <lord-icon
+                src="https://cdn.lordicon.com/tinbomws.json"
+                trigger="hover"
+                colors="primary:#848484"
+                style="width:100%;height:100%">
+              </lord-icon>
+              <span class="icon icon-text">Descargar Transcripcion</span>
+            </button>
+          </div>
       </mat-card-actions>
   </mat-card>
 
   <br>
   <mat-card class="audio-record-content-2 card-shadow">
+    <mat-card-content *ngIf="!(buttonState$ | async) && !isRecording && !blobUrl" class="card-content">
+      <h2 class="card-title">
+        Para comenzar, grabe un Audio
+      </h2>
+    </mat-card-content>
+    <ng-template [ngIf]="(buttonState$ | async)">
+      <div class="col-12 mt-2" >
+        <div class="icon-container">
+          <!-- <span *ngIf="isBlinking" class="recording-text">Grabando...</span> -->
+          <div *ngIf="isBlinking" class="recording-icon"></div>
+        </div>
+        <div class="static-timer">{{startTime}}</div>
+      </div>
+    </ng-template>
     <div class="col-12 mt-2" *ngIf="!isRecording && blobUrl">
       <audio class="audio-file" controls >
         <source [src]="blobUrl" type="audio/wav"/>
       </audio>
     </div>
-    <ng-template [ngIf]="(buttonState$ | async) && isBlinking">
-      <div class="col-12 mt-2" >
-        <span class="recording-text">Grabando...</span>
-      </div>
-    </ng-template>
   </mat-card>
 </div>

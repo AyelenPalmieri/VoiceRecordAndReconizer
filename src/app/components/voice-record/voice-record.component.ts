@@ -1,9 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AudioRecordingService, RecordedBlob } from '../../services/audio-recording.service';
 import { DomSanitizer } from '@angular/platform-browser';
-import { takeUntil } from 'rxjs/operators';
-import { Observable, Subject, interval } from 'rxjs';
-import { MatCardModule} from '@angular/material/card';
+import { Observable, Subject, timer } from 'rxjs';
+import { takeUntil, switchMap } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -22,6 +21,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
   private recordedBlob!: RecordedBlob;
   private ngUnsubscribe = new Subject<void>();
   private buttonStateSubject = new Subject<boolean>();
+  private blinkStopper = new Subject<void>();
   buttonState$: Observable<boolean> = this.buttonStateSubject.asObservable();
   fileId: any;
 
@@ -67,12 +67,12 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
   startRecording(){
     if(!this.isRecording && !this.isActionInProgress){
       console.log('start recording');
-      console.log(this.isRecording)
+      // console.log(this.isRecording)
       this.isActionInProgress = true;
       this.isRecording = true;
       this.buttonStateSubject.next(true);
       this.startBlinking();
-      console.log(this.isRecording)
+      // console.log(this.isRecording)
       this.audioRecordingServices.startRecording();
       this.blobUrl = null;
     }
@@ -134,16 +134,24 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
   }
 
   startBlinking() {
-    this.isBlinking = true;
-    interval(1000)
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
-        this.isBlinking = !this.isBlinking;
-      });
+   // Primero cancelamos cualquier parpadeo anterior
+  this.blinkStopper.next();
+
+  this.isBlinking = true;
+  timer(0, 1500) // Cada 1,5 segundos se repetirá el ciclo
+    .pipe(
+      takeUntil(this.blinkStopper), // Detiene el parpadeo cuando `blinkStopper` emite
+      switchMap(() => {
+        this.isBlinking = !this.isBlinking; // Alternamos el estado
+        return timer(this.isBlinking ? 500 : 800); // Duración del encendido o apagado
+      })
+    )
+    .subscribe();
   }
 
   stopBlinking() {
-    this.isBlinking = false;
+    this.blinkStopper.next(); // Cancela el parpadeo
+    this.isBlinking = false; // Asegura que el estado esté apagado
   }
 
   deleteRecording(){
