@@ -14,6 +14,12 @@ export interface RecordedBlob{
   providedIn: 'root'
 })
 export class AudioRecordingService {
+  saveTranscription(fileId: any) {
+    throw new Error('Method not implemented.');
+  }
+  downloadTranscription(fileId: any) {
+    throw new Error('Method not implemented.');
+  }
   private recorder: any;
   private startTime = 0;
   private interval = 0;
@@ -22,7 +28,6 @@ export class AudioRecordingService {
   private recordedBlob = new Subject<RecordedBlob>();
   private recordingTime = new Subject<string>();
   private recordedFailed = new Subject<string>();
-
   private recordedCompleted = new Subject<boolean>();
 
   constructor(private httpClient: HttpClient) { }
@@ -44,7 +49,9 @@ export class AudioRecordingService {
         this.stream = stream;
         this.record();
       })
-      .catch(() => this.recordedFailed.next(''));
+      .catch(() => {
+        this.recordedFailed.next('')
+      });
     }
   }
 

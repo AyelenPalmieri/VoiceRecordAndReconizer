@@ -11,10 +11,8 @@
         </p>
       </mat-card-content>
       <mat-card-actions>
-          <ng-template [ngIf]="!(isActionInProgress || isRecording)">
-            <div class="button-container">
-              <button (click)="startRecording()" [disabled]="isActionInProgress || isRecording || audioSentSuccessfully" class="button-icon mic-button">
-                <!-- <img src="../../assets/icon/icon-mic.png" class="icon" alt="Mic Icon"> -->
+            <div *ngIf="(buttonState$ | async); else other_conten" class="button-container">
+              <button (click)="startRecording()"  class="button-icon mic-button">
                 <lord-icon
                   src="https://cdn.lordicon.com/ceogkocw.json"
                   trigger="hover"
@@ -23,12 +21,9 @@
                 <span class="icon icon-text">Grabar</span>
               </button>
             </div>
-          </ng-template>
 
-          <ng-template [ngIf]="!(!isActionInProgress || isRecording)">
-            <div class="button-container">
-              <button (click)="stopRecording()" [disabled]="!isActionInProgress || isRecording" class="button-icon stop-button">
-                <!-- <img src="../../assets/icon/icon-mic-cancel.png" class="icon" alt="Mic Icon"> -->
+          <ng-template #other_conten>
+              <button (click)="stopRecording()" class="button-icon stop-button">
                 <lord-icon
                   src="https://cdn.lordicon.com/ceogkocw.json"
                   trigger="hover"
@@ -37,7 +32,6 @@
                 </lord-icon>
                 <span class="icon icon-text">Detener</span>
               </button>
-            </div>
           </ng-template>
 
           <div class="button-container">
@@ -122,24 +116,31 @@
 
   <br>
   <mat-card class="audio-record-content-2 card-shadow">
-    <mat-card-content *ngIf="!(buttonState$ | async) && !isRecording && !blobUrl" class="card-content">
-      <h2 class="card-title">
-        Para comenzar, grabe un Audio
-      </h2>
-    </mat-card-content>
-    <ng-template [ngIf]="(buttonState$ | async)">
-      <div class="col-12 mt-2" >
-        <div class="icon-container">
-          <!-- <span *ngIf="isBlinking" class="recording-text">Grabando...</span> -->
-          <div *ngIf="isBlinking" class="recording-icon"></div>
-        </div>
-        <div class="static-timer">{{startTime}}</div>
-      </div>
+    <ng-template [ngIf]='!(buttonState$ | async)' [ngIfThen]= 'templateName' [ngIfElse]= 'media'>
     </ng-template>
-    <div class="col-12 mt-2" *ngIf="!isRecording && blobUrl">
-      <audio class="audio-file" controls >
-        <source [src]="blobUrl" type="audio/wav"/>
-      </audio>
-    </div>
+
+    <mat-card-content *ngIf="(showUseFirstTimeMessage$ | async)"class="card-content">
+        <h2 class="card-title">
+          Para comenzar, grabe un Audio
+        </h2>
+    </mat-card-content>
   </mat-card>
 </div>
+
+<ng-template #templateName>
+  <div class="col-12 mt-2" >
+    <div class="icon-container">
+      <!-- <span *ngIf="isBlinking" class="recording-text">Grabando...</span> -->
+      <div class="recording-icon"></div>
+    </div>
+    <div class="static-timer">{{startTime}}</div>
+  </div>
+</ng-template>
+
+<ng-template #media>
+  <div class="col-12 mt-2" *ngIf="blobUrl">
+    <audio class="audio-file" controls >
+      <source [src]="blobUrl" type="audio/wav"/>
+    </audio>
+  </div>
+</ng-template>
