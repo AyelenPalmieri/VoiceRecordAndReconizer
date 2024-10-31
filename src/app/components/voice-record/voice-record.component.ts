@@ -18,6 +18,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
   startTime = '0:00';
   isBlinking = false;
   audioSentSuccessfully = false;
+  isTranscriptionReady = false;
   private recordedBlob!: RecordedBlob;
   private ngUnsubscribe = new Subject<void>();
 
@@ -92,6 +93,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
     this.audioRecordingServices.stopRecording();
     this.isRecording = false;
     this.isActionInProgress = false;
+    this.isTranscriptionReady = false;
     // this.stopBlinking();
   }
 
@@ -132,6 +134,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
           console.log('Transcripción completada:', response.formatted_report);
 
           this.transcribedSuccessfully = true; // Habilitar guardar y descargar transcripción
+          this.isTranscriptionReady = true;
           this.isActionInProgress = false;
 
           this.snackBar.open('Transcripción completada con éxito!', 'Cerrar', { duration: 3000 });
@@ -171,6 +174,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
     if (!this.isRecording && !this.isActionInProgress) {
       console.log('delete recorded')
       this.audioRecordingServices.deleteRecording();
+      this.audioSentSuccessfully = false;
       this.blobUrl = null;
     }
   }
@@ -198,7 +202,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
   }
 
   downloadTranscription() {
-    if (this.transcribedSuccessfully && this.fileId) {
+    if (this.isTranscriptionReady && this.transcribedSuccessfully && this.fileId) {
       this.audioRecordingServices.downloadTranscription(this.fileId);
     }
   }
@@ -209,4 +213,9 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
     }
   }
 
+  sendTranscribeToServer() {
+    if (this.transcribedSuccessfully && this.fileId) {
+      this.audioRecordingServices.sendTranscribeToServer(this.fileId);
+    }
+  }
 }

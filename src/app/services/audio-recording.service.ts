@@ -14,6 +14,9 @@ export interface RecordedBlob{
   providedIn: 'root'
 })
 export class AudioRecordingService {
+  sendTranscribeToServer(fileId: any) {
+    throw new Error('Method not implemented.');
+  }
   saveTranscription(fileId: any) {
     throw new Error('Method not implemented.');
   }

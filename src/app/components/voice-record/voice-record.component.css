@@ -86,11 +86,6 @@
   cursor: not-allowed;
 }
 
-.button-icon img {
-  width: 24px;
-  height: 24px;
-}
-
 .button-icon:hover {
   background-color: rgba(13, 154, 240, 0.5);
   border-color: #00aaff;
@@ -103,7 +98,6 @@
   font-size: 14px;
   color: #333;
 }
-
 
 .mic-button {
   /* background: rgb(93, 207, 36); */
@@ -123,6 +117,10 @@
 }
 
 .delete-button {
+  background: #0d9af0c7
+}
+
+.transcribe-button{
   background: #0d9af0c7
 }
 
