@@ -11,7 +11,7 @@
         </p>
       </mat-card-content>
       <mat-card-actions>
-            <div *ngIf="(buttonState$ | async); else other_conten" class="button-container">
+            <div *ngIf="(recordingButtonVisibility$ | async); else other_conten" class="button-container">
               <button (click)="startRecording()" class="button-icon mic-button">
                 <lord-icon
                   src="https://cdn.lordicon.com/ceogkocw.json"
@@ -35,7 +35,7 @@
           </ng-template>
 
           <div class="button-container">
-            <button (click)="deleteRecording()" [disabled]="isActionInProgress || isRecording || !blobUrl || audioSentSuccessfully" class="button-icon delete-button">
+            <button (click)="deleteRecording()" [disabled]="disableDeleted" class="button-icon delete-button">
               <!-- <img src="../../assets/icon/icon-delete.png" class="icon" alt="Mic Icon"> -->
               <lord-icon
                 src="https://cdn.lordicon.com/hjbrplwk.json"
@@ -48,7 +48,7 @@
           </div>
 
           <div class="button-container">
-            <button (click)="downloadRecording()" [disabled]="isActionInProgress || isRecording || !blobUrl" class="button-icon download-button">
+            <button (click)="downloadRecording()" [disabled]="disableDownload" class="button-icon download-button">
               <!-- <img src="../../assets/icon/icon-download.png" class="icon" alt="Mic Icon"> -->
               <lord-icon
                 src="https://cdn.lordicon.com/tinbomws.json"
@@ -61,7 +61,7 @@
           </div>
 
           <div class="button-container">
-            <button (click)="transcribeAudio()" [disabled]="isActionInProgress || isRecording || !blobUrl" class="button-icon download-button">
+            <button (click)="transcribeAudio()"  class="button-icon download-button">
               <!-- <img src="../../assets/icon/icon-transcribe.png" class="icon" alt="Mic Icon"> -->
               <lord-icon
                 src="https://cdn.lordicon.com/yqiuuheo.json"
@@ -75,7 +75,7 @@
           </div>
 
           <div class="button-container">
-            <button (click)="sendAudioToServer()" [disabled]="isActionInProgress || isRecording || !blobUrl" class="button-icon save-button">
+            <button (click)="sendAudioToServer()" [disabled]="disableUpload" class="button-icon save-button">
               <!-- <img src="../../assets/icon/icon-save-db.png" class="icon" alt="Mic Icon"> -->
               <lord-icon
                 src="https://cdn.lordicon.com/cwptyzxc.json"
@@ -88,7 +88,7 @@
           </div>
 
           <div class="button-container">
-            <button (click)="sendTranscribeToServer()" [disabled]="isActionInProgress || isRecording || !blobUrl" class="button-icon transcribe-button">
+            <button (click)="sendTranscribeToServer()"  class="button-icon transcribe-button">
               <!-- <img src="../../assets/icon/icon-save-db.png" class="icon" alt="Mic Icon"> -->
               <lord-icon
                 src="https://cdn.lordicon.com/fzgrewpn.json"
@@ -101,7 +101,7 @@
           </div>
 
           <div class="button-container">
-            <button (click)="downloadTranscription()" [disabled]="isActionInProgress || !blobUrl || isTranscriptionReady" class="button-icon download-button">
+            <button (click)="downloadTranscription()" class="button-icon download-button">
               <!-- <img src="../../assets/icon/icon-save-db.png" class="icon" alt="Mic Icon"> -->
               <lord-icon
                 src="https://cdn.lordicon.com/tinbomws.json"
@@ -117,7 +117,7 @@
 
   <br>
   <mat-card class="audio-record-content-2 card-shadow">
-    <ng-template [ngIf]='!(buttonState$ | async)' [ngIfThen]= 'templateName' [ngIfElse]= 'media'>
+    <ng-template [ngIf]='!(recordingButtonVisibility$ | async)' [ngIfThen]= 'templateName' [ngIfElse]= 'media'>
     </ng-template>
 
     <mat-card-content *ngIf="(showUseFirstTimeMessage$ | async)"class="card-content">
