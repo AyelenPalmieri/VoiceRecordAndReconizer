@@ -28,6 +28,9 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
   disableDeleted = true;
   disableDownload = true;
   disableUpload = true;
+  disableTranscribe = true;
+  disableUploadTranscribe = true;
+  disableDownloadTranscribe = true;
 
   private recordingButtonVisibilitySubject = new BehaviorSubject<boolean>(true);
   recordingButtonVisibility$: Observable<boolean> = this.recordingButtonVisibilitySubject.asObservable();
@@ -44,18 +47,19 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     public stateService: StatesService
   ) {
-    this.stateService.buttonState$.subscribe((state: { blobState: any; }) => {
+    this.stateService.buttonState$.subscribe((state: { blobState: any; uploadState: any; transcribeState: any }) => {
       // this.isActionInProgress = !state.blobState;
       this.disableDeletedMethod(state);
       this.disableDownloadMethod(state);
       this.disableUploadMethod(state);
-
+      this.disableTranscribedMethod(state);
+      this.disableUploadTranscribeMethod(state);
+      this.disableDownloadTranscribeMethod(state);
     });
     this.getRecordedBlob();
     this.getRecordingTime();
     this.getRecordedFailed();
   }
-
 
   disableUploadMethod(state: { blobState: any; }) {
     if (state.blobState == false) {
@@ -84,6 +88,47 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
     }
   }
 
+  disableTranscribedMethod(state: { blobState: any; uploadState: any; }) {
+    if (state.blobState == false) {
+      this.disableTranscribe = true
+    }
+    if (state.uploadState == false) {
+      this.disableTranscribe = true
+    }
+    if (state.blobState == true && state.uploadState == true) {
+      this.disableTranscribe = false
+    }
+  }
+
+  disableUploadTranscribeMethod(state: { blobState: any; uploadState: any; transcribeState: any; }) {
+    if (state.blobState == false) {
+      this.disableUploadTranscribe = true
+    }
+    if (state.uploadState == false) {
+      this.disableUploadTranscribe = true
+    }
+    if (state.transcribeState == false) {
+      this.disableUploadTranscribe = true
+    }
+    if (state.blobState == true && state.uploadState == true && state.transcribeState == true) {
+      this.disableUploadTranscribe = false
+    }
+  }
+
+  disableDownloadTranscribeMethod(state: { blobState: any; uploadState: any; transcribeState: any; }) {
+    if (state.blobState == false) {
+      this.disableDownloadTranscribe = true
+    }
+    if (state.uploadState == false) {
+      this.disableDownloadTranscribe = true
+    }
+    if (state.transcribeState == false) {
+      this.disableDownloadTranscribe = true
+    }
+    if (state.blobState == true && state.uploadState == true && state.transcribeState == true) {
+      this.disableDownloadTranscribe = false
+    }
+  }
 
   ngOnInit(): void {
     this.getRecordedCompleted();
@@ -129,8 +174,8 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
     this.recordingButtonVisibilitySubject.next(true);
     this.stateService.setButtonState({
       blobState: true,
-      uploadState: true,
-      transcribeState: true
+      uploadState: false,
+      transcribeState: false
     })
     // console.log('stop recording');
     this.audioRecordingServices.stopRecording();
@@ -142,34 +187,43 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
 
   sendAudioToServer() {
     if (!this.isRecording && !this.isActionInProgress && this.recordedBlob) {
-      // Establecer uploadState en true al iniciar el proceso de envío
-      this.stateService.setButtonState({ uploadState: true });
+      // Deshabilitar el botón de transcripción y configurar el estado de carga antes de enviar la solicitud
+      this.stateService.setButtonState({
+        blobState: false,
+        transcribeState: false,
+        uploadState: false,
+      });
+      this.isActionInProgress = true; // Marcar que la acción está en progreso
 
       this.audioRecordingServices.sendAudioToServer(this.recordedBlob.blob, this.recordedBlob.title)
         .subscribe(
           response => {
             console.log('Archivo de audio enviado con exito al servidor');
-            console.log(this.recordedBlob)
+            // console.log(this.recordedBlob)
 
             // Guardar el file_id que se recibe de la respuesta del backend
             if (response && response.file_id) {
               this.fileId = response.file_id;
-              this.audioSentSuccessfully = true; // Habilitar el botón de transcripción
+              this.audioSentSuccessfully = true;
+
+              // Habilitar el botón de transcripción solo si la respuesta es exitosa
+              this.stateService.setButtonState({
+                blobState: true,
+                uploadState: true,
+                transcribeState: true
+              }); // Solo si el backend confirma el guardado
+            }else {
+              // Si no hay file_id en la respuesta, mantener el botón deshabilitado
               this.stateService.setButtonState({
                 blobState: false,
-                uploadState: true,
+                uploadState: false,
                 transcribeState: false
-              }); // Solo si el backend confirma el guardado
+              });
             }
 
+            // Marcar que la acción ha finalizado
             this.isActionInProgress = false;
 
-            // // Mantener uploadState en true para reflejar que el archivo esta guardado
-            // this.stateService.setButtonState({
-            //   blobState: false,
-            //   uploadState: true,
-            //   transcribeState: false
-            // });
             this.snackBar.open('¡El archivo de audio se ha enviado con exito al servidor!', 'Cerrar', {
               duration: 3000,
             });
@@ -183,8 +237,12 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
             console.error('Error al enviar archivo de audio al servidor:', error);
             this.isActionInProgress = false;
 
-            // Establecer uploadState en false para indicar que el envio fallo
-            this.stateService.setButtonState({ uploadState: false });
+            // Mantener el botón de transcripción deshabilitado en caso de error
+            this.stateService.setButtonState({
+              blobState: false,
+              uploadState: false,
+              transcribeState: false
+            });
           }
         );
     } else {
@@ -193,14 +251,34 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
   }
 
   transcribeAudio() {
-    if (this.fileId && this.audioSentSuccessfully) {
+    // Verifica que no haya otra acción en curso y que el archivo de audio fue enviado exitosamente
+    if (this.fileId && this.audioSentSuccessfully && !this.isActionInProgress) {
+      // Inicialmente, deshabilitar el botón de guardar transcripción y marcar que está en progreso
+      this.stateService.setButtonState({
+        blobState: false,
+        transcribeState: false,
+        uploadState: false,
+      });
+      this.isActionInProgress = true;
+
       this.audioRecordingServices.transcribeAudio(this.fileId).subscribe(
         response => {
-          console.log('Transcripción completada:', response.formatted_report);
+          console.log('Transcripción completada:', response);
 
+          // Actualizar los estados después de recibir la confirmación de transcripción
           this.transcribedSuccessfully = true; // Habilitar guardar y descargar transcripción
           this.isTranscriptionReady = true;
           this.isActionInProgress = false;
+
+          // Habilitar el botón para guardar la transcripción
+          this.stateService.setButtonState({
+            transcribeState: true
+          });
+
+          this.isActionInProgress = false; // La acción ha terminado
+          this.stateService.setButtonState({
+            transcribeState: false
+          });
 
           this.stateService.setButtonState({ transcribeState: false });
           this.snackBar.open('Transcripción completada con éxito!', 'Cerrar', { duration: 3000 });
@@ -209,10 +287,16 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
         error => {
           console.error('Error al transcribir el archivo:', error);
           this.isActionInProgress = false;
+
+          // Rehabilitar el botón de transcripción si hay un error
+          this.stateService.setButtonState({
+            transcribeState: true
+          });
+          this.snackBar.open('Error al transcribir el archivo', 'Cerrar', { duration: 3000 });
         }
       );
     } else {
-      console.error('No se ha encontrado el file_id.');
+      console.error('No se ha encontrado el file_id o ya hay una transcripción en curso.');
     }
   }
 

@@ -61,20 +61,6 @@
           </div>
 
           <div class="button-container">
-            <button (click)="transcribeAudio()"  class="button-icon download-button">
-              <!-- <img src="../../assets/icon/icon-transcribe.png" class="icon" alt="Mic Icon"> -->
-              <lord-icon
-                src="https://cdn.lordicon.com/yqiuuheo.json"
-                trigger="hover"
-                colors="primary:#545454,secondary:#ebe6ef"
-                style="width:100%;height:100%">
-              </lord-icon>
-
-              <span class="icon-text">Transcribir Audio</span>
-            </button>
-          </div>
-
-          <div class="button-container">
             <button (click)="sendAudioToServer()" [disabled]="disableUpload" class="button-icon save-button">
               <!-- <img src="../../assets/icon/icon-save-db.png" class="icon" alt="Mic Icon"> -->
               <lord-icon
@@ -88,7 +74,21 @@
           </div>
 
           <div class="button-container">
-            <button (click)="sendTranscribeToServer()"  class="button-icon transcribe-button">
+            <button (click)="transcribeAudio()" [disabled]="disableTranscribe" class="button-icon download-button">
+              <!-- <img src="../../assets/icon/icon-transcribe.png" class="icon" alt="Mic Icon"> -->
+              <lord-icon
+                src="https://cdn.lordicon.com/yqiuuheo.json"
+                trigger="hover"
+                colors="primary:#545454,secondary:#ebe6ef"
+                style="width:100%;height:100%">
+              </lord-icon>
+
+              <span class="icon-text">Transcribir Audio</span>
+            </button>
+          </div>
+
+          <div class="button-container">
+            <button (click)="sendTranscribeToServer()" [disabled]="disableUploadTranscribe" class="button-icon transcribe-button">
               <!-- <img src="../../assets/icon/icon-save-db.png" class="icon" alt="Mic Icon"> -->
               <lord-icon
                 src="https://cdn.lordicon.com/fzgrewpn.json"
@@ -101,7 +101,7 @@
           </div>
 
           <div class="button-container">
-            <button (click)="downloadTranscription()" class="button-icon download-button">
+            <button (click)="downloadTranscription()" [disabled]="disableDownloadTranscribe" class="button-icon download-button">
               <!-- <img src="../../assets/icon/icon-save-db.png" class="icon" alt="Mic Icon"> -->
               <lord-icon
                 src="https://cdn.lordicon.com/tinbomws.json"
