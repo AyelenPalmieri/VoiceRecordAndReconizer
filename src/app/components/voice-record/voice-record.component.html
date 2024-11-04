@@ -10,7 +10,7 @@
           Esta aplicación permite grabar y transcribir consultas médicas de manera eficiente y segura.
         </p>
       </mat-card-content>
-      <mat-card-actions>
+      <mat-card-actions class="mat-card-actions">
             <div *ngIf="(recordingButtonVisibility$ | async); else other_conten" class="button-container">
               <button (click)="startRecording()" class="button-icon mic-button">
                 <lord-icon
@@ -145,3 +145,4 @@
     </audio>
   </div>
 </ng-template>
+

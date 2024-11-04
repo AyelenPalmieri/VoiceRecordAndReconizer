@@ -19,7 +19,7 @@
 }
 
 .card-content {
-  padding: 20px; /* Espaciado interno de la tarjeta */
+  padding: 15px; /* Espaciado interno de la tarjeta */
   text-align: center; /* Centrar el texto */
   background-color: #f9f9f9; /* Fondo más claro */
   border-radius: 8px; /* Bordes redondeados */
@@ -41,20 +41,25 @@
 
 .mat-card-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: wrap !important;
   justify-content: center;
-  gap: 20px;
-  row-gap: 50px;
+  gap: 20px !important;
+  row-gap: 50px !important;
+  padding: 10px !important;
   padding-bottom: 50px !important;
 }
 
 .audio-record-content-2 {
-  border-radius: 9px;
+  display: flex;
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center; /* Centra verticalmente */
+  border-radius: 9px ;
   margin-top: 20px;
   margin-bottom: 20px;
   width: 50%;
   height: 100px;
   background-color: rgb(255, 255, 255);
+  padding: 15px;
 }
 
 .audio-placeholder {
