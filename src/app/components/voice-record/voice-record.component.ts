@@ -228,14 +228,28 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
               duration: 3000,
             });
 
-            //this.audioSentSuccessfully = false;
           },
           error => {
-            this.snackBar.open('Error al enviar archivo de audio al servidor', 'Cerrar', {
-              duration: 3000,
-            });
-            console.error('Error al enviar archivo de audio al servidor:', error);
             this.isActionInProgress = false;
+
+            if (error.status === 412 && error.error?.error === 'El audio no contiene habla y no se almacenará.') {
+              // Manejar el caso específico de audio en silencio
+              this.snackBar.open('El audio está en silencio o contiene solo ruido. No se guardará.', 'Cerrar', {
+                duration: 3000,
+              });
+              console.warn('El audio está en silencio o contiene solo ruido.');
+            } else {
+              // Manejar otros errores
+              this.snackBar.open('Error al enviar archivo de audio al servidor', 'Cerrar', {
+                duration: 3000,
+              });
+              console.error('Error al enviar archivo de audio al servidor:', error);
+            }
+            // this.snackBar.open('Error al enviar archivo de audio al servidor', 'Cerrar', {
+            //   duration: 3000,
+            // });
+            // console.error('Error al enviar archivo de audio al servidor:', error);
+            // this.isActionInProgress = false;
 
             // Mantener el botón de transcripción deshabilitado en caso de error
             this.stateService.setButtonState({
