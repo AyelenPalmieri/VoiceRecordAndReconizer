@@ -33,7 +33,8 @@
             "scripts": [],
             "allowedCommonJsDependencies": [
               "recordrtc",
-              "lottie-web"
+              "lottie-web",
+              "quill-delta"
             ]
           },
           "configurations": {

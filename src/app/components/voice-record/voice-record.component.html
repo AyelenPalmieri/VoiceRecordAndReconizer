@@ -115,6 +115,8 @@
       </mat-card-actions>
   </mat-card>
 
+  <quill-editor></quill-editor>
+
   <br>
   <mat-card class="audio-record-content-2 card-shadow">
     <ng-template [ngIf]='!(recordingButtonVisibility$ | async)' [ngIfThen]= 'templateName' [ngIfElse]= 'media'>

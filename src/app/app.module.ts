@@ -8,6 +8,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatCardModule} from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AppRoutingModule } from './app-routing.module';
+import { QuillModule } from 'ngx-quill'
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { AppRoutingModule } from './app-routing.module';
     BrowserAnimationsModule,
     MatCardModule,
     AppRoutingModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    QuillModule.forRoot()
   ],
   providers: [],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

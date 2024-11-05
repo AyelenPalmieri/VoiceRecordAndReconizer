@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { AudioRecordingService, RecordedBlob } from '../../services/audio-recording.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { BehaviorSubject, Observable, Subject, timer } from 'rxjs';
@@ -6,6 +6,9 @@ import { takeUntil, switchMap } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { StatesService } from '../../services/states.service';
 import { state } from '@angular/animations';
+import QuillType from 'quill';
+import Delta from'quill';
+
 @Component({
   selector: 'app-voice-record',
   templateUrl: './voice-record.component.html',
@@ -43,7 +46,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly audioRecordingServices: AudioRecordingService,
-    private readonly sanitizer: DomSanitizer,
+    @Inject(DomSanitizer) private readonly sanitizer: DomSanitizer,
     private snackBar: MatSnackBar,
     public stateService: StatesService
   ) {
