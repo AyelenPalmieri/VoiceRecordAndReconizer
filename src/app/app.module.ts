@@ -9,6 +9,7 @@ import { MatCardModule} from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AppRoutingModule } from './app-routing.module';
 import { QuillModule } from 'ngx-quill'
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,8 @@ import { QuillModule } from 'ngx-quill'
     MatCardModule,
     AppRoutingModule,
     MatSnackBarModule,
+    FormsModule,
+    ReactiveFormsModule,
     QuillModule.forRoot()
   ],
   providers: [],

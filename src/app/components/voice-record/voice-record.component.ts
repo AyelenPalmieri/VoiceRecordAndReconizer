@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AudioRecordingService, RecordedBlob } from '../../services/audio-recording.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { BehaviorSubject, Observable, Subject, timer } from 'rxjs';
@@ -8,6 +8,7 @@ import { StatesService } from '../../services/states.service';
 import { state } from '@angular/animations';
 import QuillType from 'quill';
 import Delta from'quill';
+import { QuillEditorComponent } from 'ngx-quill';
 
 @Component({
   selector: 'app-voice-record',
@@ -16,6 +17,8 @@ import Delta from'quill';
 })
 
 export class VoiceRecordComponent implements OnInit, OnDestroy {
+  @ViewChild('quillEditor', { static: true }) quillEditor!: QuillEditorComponent;
+
   blobUrl: any;
   fileId: any;
   isRecording = false;
@@ -24,6 +27,10 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
   isBlinking = false;
   audioSentSuccessfully = false;
   isTranscriptionReady = false;
+  transcriptionText: string = ''; // Almacena la transcripción formateada
+  // Cambia la propiedad transcriptionText para que sea un objeto con 'html'
+  // transcriptionText: { html: string } = { html: '' };
+  htmlContent:string = '';
   private recordedBlob!: RecordedBlob;
   private ngUnsubscribe = new Subject<void>();
   private blinkStopper = new Subject<void>();
@@ -34,6 +41,21 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
   disableTranscribe = true;
   disableUploadTranscribe = true;
   disableDownloadTranscribe = true;
+
+  public modulesQuill = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ font: [] }],
+      [{ color: [] }, { background: [] }],
+      [{ size: ['small', false, 'large', 'huge'] }],
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      [{ align: [] }],
+      ['blockquote', 'code-block'],
+      [{ list: 'ordered'}, { list: 'bullet' }],
+      ['link', 'image', 'video'],
+      ['clean'],
+    ]
+  };
 
   private recordingButtonVisibilitySubject = new BehaviorSubject<boolean>(true);
   recordingButtonVisibility$: Observable<boolean> = this.recordingButtonVisibilitySubject.asObservable();
@@ -48,7 +70,8 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
     private readonly audioRecordingServices: AudioRecordingService,
     @Inject(DomSanitizer) private readonly sanitizer: DomSanitizer,
     private snackBar: MatSnackBar,
-    public stateService: StatesService
+    public stateService: StatesService,
+    private cdr: ChangeDetectorRef
   ) {
     this.stateService.buttonState$.subscribe((state: { blobState: any; uploadState: any; transcribeState: any }) => {
       // this.isActionInProgress = !state.blobState;
@@ -63,6 +86,12 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
     this.getRecordingTime();
     this.getRecordedFailed();
   }
+
+  // onChangedEditor(event: any): void {
+  //   if (event.html) {
+  //       this.htmlContent = event.html;
+  //     }
+  // }
 
   disableUploadMethod(state: { blobState: any; }) {
     if (state.blobState == false) {
@@ -134,6 +163,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.quillEditor?.quillEditor?.setText("holaaaa")
     this.getRecordedCompleted();
   }
 
@@ -280,7 +310,30 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
 
       this.audioRecordingServices.transcribeAudio(this.fileId).subscribe(
         response => {
-          console.log('Transcripción completada:', response);
+          console.log('Transcripción completada:', response.formatted_report);
+
+          // Asigna el reporte formateado al editor Quill
+          this.transcriptionText = response.formatted_report.replace(/<\/?[^>]+(>|$)/g, "");
+
+
+          //VERIFICAR, NO FUNCIONA
+          // Asegúrate de que Quill esté listo y actualiza el contenido
+           if (this.quillEditor && this.quillEditor.quillEditor) {
+            console.log("sss");
+
+             this.quillEditor.quillEditor.setText(this.transcriptionText, 'api');
+           }
+
+          // // Verifica si quillEditor está inicializado y establece el contenido
+          // if (this.quillEditor && this.quillEditor.quillEditor) {
+          //   const delta = this.quillEditor.quillEditor.clipboard.convert(this.transcriptionText);
+          //   this.quillEditor.quillEditor.setContents(delta); // Establece el contenido del editor
+          // }
+
+          // // Fuerza la detección de cambios
+          // this.cdr.detectChanges();
+
+          console.log(this.transcriptionText)
 
           // Actualizar los estados después de recibir la confirmación de transcripción
           this.transcribedSuccessfully = true; // Habilitar guardar y descargar transcripción
@@ -316,6 +369,13 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
       console.error('No se ha encontrado el file_id o ya hay una transcripción en curso.');
     }
   }
+
+  // Captura cambios en el editor
+   onChangedEditor(event: any): void {
+     if (event.html) {
+       this.htmlContent = event.html;
+     }
+   }
 
   startBlinking() {
     // Primero cancelamos cualquier parpadeo anterior
