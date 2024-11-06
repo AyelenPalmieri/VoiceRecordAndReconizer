@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AudioRecordingService, RecordedBlob } from '../../services/audio-recording.service';
 import { DomSanitizer } from '@angular/platform-browser';
-import { BehaviorSubject, Observable, Subject, timer } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, Subject, timer } from 'rxjs';
 import { takeUntil, switchMap } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { StatesService } from '../../services/states.service';
@@ -22,18 +22,19 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
   blobUrl: any;
   fileId: any;
   isRecording = false;
-  isActionInProgress = false;
+  // isActionInProgress = false;
   startTime = '0:00';
   isBlinking = false;
-  audioSentSuccessfully = false;
-  isTranscriptionReady = false;
-  transcriptionText: string = ''; // Almacena la transcripción formateada
-  // Cambia la propiedad transcriptionText para que sea un objeto con 'html'
-  // transcriptionText: { html: string } = { html: '' };
+  // audioSentSuccessfully = false;
+  // isTranscriptionReady = false;
+  transcriptionText: string  | null = null; // Almacena la transcripción formateada
+
   htmlContent:string = '';
   private recordedBlob!: RecordedBlob;
   private ngUnsubscribe = new Subject<void>();
   private blinkStopper = new Subject<void>();
+  private transcriptionText$ = new BehaviorSubject<string | null>(null);
+  private quillInstance: any;
 
   disableDeleted = true;
   disableDownload = true;
@@ -74,7 +75,6 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef
   ) {
     this.stateService.buttonState$.subscribe((state: { blobState: any; uploadState: any; transcribeState: any }) => {
-      // this.isActionInProgress = !state.blobState;
       this.disableDeletedMethod(state);
       this.disableDownloadMethod(state);
       this.disableUploadMethod(state);
@@ -87,13 +87,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
     this.getRecordedFailed();
   }
 
-  // onChangedEditor(event: any): void {
-  //   if (event.html) {
-  //       this.htmlContent = event.html;
-  //     }
-  // }
-
-  disableUploadMethod(state: { blobState: any; }) {
+  disableUploadMethod(state: { blobState: boolean; }) {
     if (state.blobState == false) {
       this.disableUpload = true
     }
@@ -102,7 +96,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
     }
   }
 
-  disableDownloadMethod(state: { blobState: any; }) {
+  disableDownloadMethod(state: { blobState: boolean; }) {
     if (state.blobState == false) {
       this.disableDownload = true
     }
@@ -111,59 +105,51 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
     }
   }
 
-  disableDeletedMethod(state:{ blobState: any; }) {
-    if (state.blobState == false) {
+  disableDeletedMethod(state:{ blobState: boolean; }) {
+    if (state.blobState === false) {
       this.disableDeleted = true
     }
-    if (state.blobState == true) {
+    if (state.blobState === true) {
       this.disableDeleted = false
     }
+    // console.log('Estado de blobState:', state.blobState, 'Estado de disableDeleted:', this.disableDeleted);
   }
 
-  disableTranscribedMethod(state: { blobState: any; uploadState: any; }) {
-    if (state.blobState == false) {
-      this.disableTranscribe = true
-    }
+  disableTranscribedMethod(state: { uploadState: boolean; }) {
     if (state.uploadState == false) {
       this.disableTranscribe = true
     }
-    if (state.blobState == true && state.uploadState == true) {
+    if (state.uploadState == true) {
       this.disableTranscribe = false
     }
   }
 
-  disableUploadTranscribeMethod(state: { blobState: any; uploadState: any; transcribeState: any; }) {
-    if (state.blobState == false) {
-      this.disableUploadTranscribe = true
-    }
+  disableUploadTranscribeMethod(state: { uploadState: boolean; transcribeState: boolean; }) {
     if (state.uploadState == false) {
       this.disableUploadTranscribe = true
     }
     if (state.transcribeState == false) {
       this.disableUploadTranscribe = true
     }
-    if (state.blobState == true && state.uploadState == true && state.transcribeState == true) {
+    if (state.uploadState == true && state.transcribeState == true) {
       this.disableUploadTranscribe = false
     }
   }
 
-  disableDownloadTranscribeMethod(state: { blobState: any; uploadState: any; transcribeState: any; }) {
-    if (state.blobState == false) {
-      this.disableDownloadTranscribe = true
-    }
+  disableDownloadTranscribeMethod(state: { uploadState: boolean; transcribeState: boolean; }) {
     if (state.uploadState == false) {
       this.disableDownloadTranscribe = true
     }
     if (state.transcribeState == false) {
       this.disableDownloadTranscribe = true
     }
-    if (state.blobState == true && state.uploadState == true && state.transcribeState == true) {
+    if (state.uploadState == true && state.transcribeState == true) {
       this.disableDownloadTranscribe = false
     }
   }
 
   ngOnInit(): void {
-    this.quillEditor?.quillEditor?.setText("holaaaa")
+    this.transcriptionText$.next(null);
     this.getRecordedCompleted();
   }
 
@@ -198,8 +184,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
     // console.log('start recording');
     this.audioRecordingServices.startRecording();
     this.isRecording = true;
-    this.isActionInProgress = true;
-    // this.startBlinking();
+    // this.isActionInProgress = true;
     this.blobUrl = null;
   }
 
@@ -213,40 +198,39 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
     // console.log('stop recording');
     this.audioRecordingServices.stopRecording();
     this.isRecording = false;
-    this.isActionInProgress = false;
-    this.isTranscriptionReady = false;
-    // this.stopBlinking();
+    // this.isActionInProgress = false;
+    // this.isTranscriptionReady = false;
   }
 
   sendAudioToServer() {
-    if (!this.isRecording && !this.isActionInProgress && this.recordedBlob) {
-      // Deshabilitar el botón de transcripción y configurar el estado de carga antes de enviar la solicitud
+    if (!this.isRecording && this.recordedBlob) {
+      // Deshabilitar el boton de transcripcion y configurar el estado de carga antes de enviar la solicitud
       this.stateService.setButtonState({
         blobState: false,
         transcribeState: false,
         uploadState: false,
       });
-      this.isActionInProgress = true; // Marcar que la acción está en progreso
+      // this.isActionInProgress = true;
 
       this.audioRecordingServices.sendAudioToServer(this.recordedBlob.blob, this.recordedBlob.title)
         .subscribe(
           response => {
-            console.log('Archivo de audio enviado con exito al servidor');
+            // console.log('Archivo de audio enviado con exito al servidor');
             // console.log(this.recordedBlob)
 
             // Guardar el file_id que se recibe de la respuesta del backend
             if (response && response.file_id) {
               this.fileId = response.file_id;
-              this.audioSentSuccessfully = true;
+              // this.audioSentSuccessfully = true;
 
-              // Habilitar el botón de transcripción solo si la respuesta es exitosa
+              // Habilitar el boton de transcripcion solo si la respuesta es exitosa
               this.stateService.setButtonState({
-                blobState: true,
+                blobState: false,
                 uploadState: true,
-                transcribeState: true
-              }); // Solo si el backend confirma el guardado
+                transcribeState: false
+              });
             }else {
-              // Si no hay file_id en la respuesta, mantener el botón deshabilitado
+              // Si no hay file_id en la respuesta, mantener el boton deshabilitado
               this.stateService.setButtonState({
                 blobState: false,
                 uploadState: false,
@@ -255,7 +239,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
             }
 
             // Marcar que la acción ha finalizado
-            this.isActionInProgress = false;
+            // this.isActionInProgress = false;
 
             this.snackBar.open('¡El archivo de audio se ha enviado con exito al servidor!', 'Cerrar', {
               duration: 3000,
@@ -263,30 +247,32 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
 
           },
           error => {
-            this.isActionInProgress = false;
+            // this.isActionInProgress = false;
 
             if (error.status === 412 && error.error?.error === 'El audio no contiene habla y no se almacenará.') {
-              // Manejar el caso específico de audio en silencio
+              // Manejar el caso especifico de audio en silencio
               this.snackBar.open('El audio está en silencio o contiene solo ruido. No se guardará.', 'Cerrar', {
                 duration: 3000,
               });
-              console.warn('El audio está en silencio o contiene solo ruido.');
+
+              // Habilitamos de nuevo el boton de eliminar y el estado de subida lo dejamos como esta
+              this.stateService.setButtonState({
+                blobState: true,
+                uploadState: false,
+                transcribeState: false
+              });
+
+              // console.warn('El audio esta en silencio o contiene solo ruido.');
             } else {
               // Manejar otros errores
               this.snackBar.open('Error al enviar archivo de audio al servidor', 'Cerrar', {
                 duration: 3000,
               });
-              console.error('Error al enviar archivo de audio al servidor:', error);
+              // console.error('Error al enviar archivo de audio al servidor:', error);
             }
-            // this.snackBar.open('Error al enviar archivo de audio al servidor', 'Cerrar', {
-            //   duration: 3000,
-            // });
-            // console.error('Error al enviar archivo de audio al servidor:', error);
-            // this.isActionInProgress = false;
 
-            // Mantener el botón de transcripción deshabilitado en caso de error
+            // Mantener el boton de transcripcion deshabilitado en caso de error
             this.stateService.setButtonState({
-              blobState: false,
               uploadState: false,
               transcribeState: false
             });
@@ -297,70 +283,99 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Metodo que se llama cuando el editor es creado
+  onEditorCreated(quill: any) {
+    this.quillInstance = quill;
+    // console.log("Editor creado y quillInstance asignado", this.quillInstance);
+
+    // Obtener el contenido actual del editor
+    const currentContents = this.quillInstance.getContents();
+    // console.log('Contenido actual:', currentContents);
+
+    // Buscar el primer parrafo vacio (<p></p>)
+    const emptyParagraphIndex = this.findEmptyParagraphIndex(currentContents);
+
+    // Escuchar el Subject para obtener el texto transcrito y agregarlo al editor
+    this.transcriptionText$.subscribe(transcriptionText => {
+      if (transcriptionText) {
+        // Si encontramos un parrafo vacio, insertar el texto alla
+        if (emptyParagraphIndex >= 0) {
+          this.quillInstance.insertText(emptyParagraphIndex, transcriptionText);
+          // console.log('Texto agregado al primer parrafo vacio:', transcriptionText);
+        } else {
+          console.log('No se encontró un párrafo vacío en el contenido.');
+        }
+      }
+    });
+  }
+
+  // Metodo para encontrar el indice del primer parrafo vacio
+  private findEmptyParagraphIndex(contents: any): number {
+    for (let i = 0; i < contents.ops.length; i++) {
+      // Comprobamos si la operacion es un parrafo vacio
+      if (contents.ops[i].insert === '' || (contents.ops[i].insert && contents.ops[i].insert.trim() === '')) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   transcribeAudio() {
-    // Verifica que no haya otra acción en curso y que el archivo de audio fue enviado exitosamente
-    if (this.fileId && this.audioSentSuccessfully && !this.isActionInProgress) {
-      // Inicialmente, deshabilitar el botón de guardar transcripción y marcar que está en progreso
+    // Verifica que el archivo de audio fue enviado exitosamente
+    if (this.fileId) {
+      // Inicialmente, deshabilitar el boton de guardar transcripcion
       this.stateService.setButtonState({
         blobState: false,
         transcribeState: false,
         uploadState: false,
       });
-      this.isActionInProgress = true;
+      // this.isActionInProgress = true;
 
       this.audioRecordingServices.transcribeAudio(this.fileId).subscribe(
         response => {
-          console.log('Transcripción completada:', response.formatted_report);
+          // Verifica si la respuesta contiene el campo 'formatted_report'
+          if (response && response.formatted_report) {
+            console.log('Transcripción completada:', response.formatted_report);
 
-          // Asigna el reporte formateado al editor Quill
-          this.transcriptionText = response.formatted_report.replace(/<\/?[^>]+(>|$)/g, "");
+            const transcriptionTextToEditor = response.formatted_report
 
+            // Asigna el texto formateado al Subject para que el editor lo reciba
+            this.transcriptionText$.next(transcriptionTextToEditor);
 
-          //VERIFICAR, NO FUNCIONA
-          // Asegúrate de que Quill esté listo y actualiza el contenido
-           if (this.quillEditor && this.quillEditor.quillEditor) {
-            console.log("sss");
+            // console.log(this.transcriptionText$)
 
-             this.quillEditor.quillEditor.setText(this.transcriptionText, 'api');
-           }
+            // Actualizar los estados despues de recibir la confirmacion de transcripcion
+            this.transcribedSuccessfully = true;
+            // this.isTranscriptionReady = true;
+            // this.isActionInProgress = false;
 
-          // // Verifica si quillEditor está inicializado y establece el contenido
-          // if (this.quillEditor && this.quillEditor.quillEditor) {
-          //   const delta = this.quillEditor.quillEditor.clipboard.convert(this.transcriptionText);
-          //   this.quillEditor.quillEditor.setContents(delta); // Establece el contenido del editor
-          // }
+            // Habilitar el boton para guardar la transcripcion y boton de descarga de transcripcion
+            this.stateService.setButtonState({
+              transcribeState: true,
+              uploadState: true,
+            });
 
-          // // Fuerza la detección de cambios
-          // this.cdr.detectChanges();
+            this.snackBar.open('Transcripción completada con éxito!', 'Cerrar', { duration: 3000 });
 
-          console.log(this.transcriptionText)
+          } else {
+            console.error('No se recibió un reporte de transcripción válido.');
 
-          // Actualizar los estados después de recibir la confirmación de transcripción
-          this.transcribedSuccessfully = true; // Habilitar guardar y descargar transcripción
-          this.isTranscriptionReady = true;
-          this.isActionInProgress = false;
+            // this.isActionInProgress = false;
+            // En caso de que no se reciba el reporte esperado
+            this.stateService.setButtonState({
+              transcribeState: true, // Rehabilitar el boton de transcripcion
+            });
 
-          // Habilitar el botón para guardar la transcripción
-          this.stateService.setButtonState({
-            transcribeState: true
-          });
-
-          this.isActionInProgress = false; // La acción ha terminado
-          this.stateService.setButtonState({
-            transcribeState: false
-          });
-
-          this.stateService.setButtonState({ transcribeState: false });
-          this.snackBar.open('Transcripción completada con éxito!', 'Cerrar', { duration: 3000 });
-          // Manejar la transcripcion como mostrarla en CKEditor (NO IMPLEMENTADO)
+            this.snackBar.open('Error: No se pudo obtener la transcripción', 'Cerrar', { duration: 3000 });
+          }
         },
         error => {
           console.error('Error al transcribir el archivo:', error);
-          this.isActionInProgress = false;
+          // this.isActionInProgress = false;
 
-          // Rehabilitar el botón de transcripción si hay un error
+          // Rehabilitar el boton de transcripcion si hay un error
           this.stateService.setButtonState({
-            transcribeState: true
+            transcribeState: true,
           });
           this.snackBar.open('Error al transcribir el archivo', 'Cerrar', { duration: 3000 });
         }
@@ -369,13 +384,6 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
       console.error('No se ha encontrado el file_id o ya hay una transcripción en curso.');
     }
   }
-
-  // Captura cambios en el editor
-   onChangedEditor(event: any): void {
-     if (event.html) {
-       this.htmlContent = event.html;
-     }
-   }
 
   startBlinking() {
     // Primero cancelamos cualquier parpadeo anterior
@@ -386,7 +394,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
         takeUntil(this.blinkStopper), // Detiene el parpadeo cuando `blinkStopper` emite
         switchMap(() => {
           this.isBlinking = !this.isBlinking; // Alternamos el estado
-          return timer(this.isBlinking ? 500 : 800); // Duración del encendido o apagado
+          return timer(this.isBlinking ? 500 : 800); // Duracion del encendido o apagado
         })
       )
       .subscribe();
@@ -398,10 +406,10 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
   }
 
   deleteRecording() {
-    if (!this.isRecording && !this.isActionInProgress) {
-      console.log('delete recorded')
+    if (!this.isRecording) {
+      // console.log('delete recorded')
       this.audioRecordingServices.deleteRecording();
-      this.audioSentSuccessfully = false;
+      // this.audioSentSuccessfully = false;
       this.blobUrl = null;
       this.stateService.setButtonState({
         blobState: false,
@@ -412,7 +420,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
   }
 
   downloadRecording() {
-    if (!this.isRecording && !this.isActionInProgress) {
+    if (!this.isRecording) {
       const downloadLink = document.createElement('a');
       downloadLink.href = URL.createObjectURL(this.recordedBlob.blob);
       console.log(this.recordedBlob)
@@ -434,7 +442,7 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
   }
 
   downloadTranscription() {
-    if (this.isTranscriptionReady && this.transcribedSuccessfully && this.fileId) {
+    if (this.transcribedSuccessfully && this.fileId) {
       this.audioRecordingServices.downloadTranscription(this.fileId);
     }
   }
@@ -450,7 +458,5 @@ export class VoiceRecordComponent implements OnInit, OnDestroy {
       this.audioRecordingServices.sendTranscribeToServer(this.fileId);
     }
   }
-
-
 
 }

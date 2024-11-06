@@ -116,14 +116,10 @@
   </mat-card>
 
   <mat-card class="audio-record-content card-shadow">
-    <quill-editor #quillEditor
-                  [(ngModel)]="transcriptionText"
-                  [modules]="modulesQuill"
-                  (onContentChanged)="onChangedEditor($event)">
+    <quill-editor
+      (onEditorCreated)="onEditorCreated($event)"
+      [modules]="modulesQuill">
     </quill-editor>
-
-    <!-- Muestra el contenido HTML actualizado -->
-    <p>Contenido del Editor: {{htmlContent}}</p>
   </mat-card>
 
   <mat-card class="audio-record-content-2 card-shadow">

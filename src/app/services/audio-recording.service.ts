@@ -87,7 +87,7 @@ export class AudioRecordingService {
     if (this.recorder) {
       this.recorder.stop((blob: Blob) => {
         const title = encodeURIComponent('audio_' + new Date().getTime() + '.wav')
-        console.log(title)
+        // console.log(title)
         this.recordedBlob.next({blob, title});
         // console.log( this.recordedBlob.next({blob, title}))
         // console.log(blob)
@@ -119,7 +119,7 @@ export class AudioRecordingService {
 
   deleteRecording(){
     if (!this.recorder){
-      console.log("entro")
+      // console.log("entro")
       this.recordingTime.next('0:00');
     }
   }
